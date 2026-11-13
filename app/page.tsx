@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ShoppingBag,
   Plus,
@@ -207,6 +207,16 @@ interface CartMap {
   };
 }
 
+// Calcula a data mínima (agora + 48 horas) no formato YYYY-MM-DD respeitando o fuso local
+function calcularDataMinima48h(): string {
+  const agora = new Date();
+  const limite = new Date(agora.getTime() + 48 * 60 * 60 * 1000);
+  const ano = limite.getFullYear();
+  const mes = String(limite.getMonth() + 1).padStart(2, '0');
+  const dia = String(limite.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
 export default function CardapioNatalPetitMarie() {
   const [carrinho, setCarrinho] = useState<CartMap>({});
   const [saboresSelecionados, setSaboresSelecionados] = useState<{ [produtoId: string]: string }>({
@@ -215,12 +225,19 @@ export default function CardapioNatalPetitMarie() {
   const [etapa, setEtapa] = useState<'cardapio' | 'dados'>('cardapio');
   const [categoriaAtiva, setCategoriaAtiva] = useState<string>('chocotones');
 
+  // Regra de 48h de antecedência
+  const dataMinimaEntrega = useMemo(() => calcularDataMinima48h(), []);
+  const dataMinimaFormatada = useMemo(
+    () => dataMinimaEntrega.split('-').reverse().join('/'),
+    [dataMinimaEntrega]
+  );
+
   // Dados do Cliente
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
   const [modalidade, setModalidade] = useState<'retirada' | 'entrega'>('retirada');
   const [endereco, setEndereco] = useState('');
-  const [dataEntrega, setDataEntrega] = useState('');
+  const [dataEntrega, setDataEntrega] = useState(() => calcularDataMinima48h());
   const [formaPagamento, setFormaPagamento] = useState<'Pix' | 'Cartão' | 'Dinheiro'>('Pix');
   const [observacoes, setObservacoes] = useState('');
 
@@ -259,6 +276,17 @@ export default function CardapioNatalPetitMarie() {
     }
   };
 
+  const handleAlterarData = (novaData: string) => {
+    if (novaData && novaData < dataMinimaEntrega) {
+      alert(
+        `Nossas encomendas exigem no mínimo 48h de antecedência. A primeira data disponível é ${dataMinimaFormatada}.`
+      );
+      setDataEntrega(dataMinimaEntrega);
+      return;
+    }
+    setDataEntrega(novaData);
+  };
+
   const cartList = Object.values(carrinho);
   const totalItens = cartList.reduce((acc, item) => acc + item.quantidade, 0);
   const valorTotal = cartList.reduce((acc, item) => acc + item.produto.preco * item.quantidade, 0);
@@ -285,6 +313,21 @@ export default function CardapioNatalPetitMarie() {
 
     if (modalidade === 'entrega' && !endereco.trim()) {
       alert('Por favor, informe o endereço para entrega.');
+      return;
+    }
+
+    if (!dataEntrega) {
+      alert('Por favor, selecione a data desejada para retirada ou entrega.');
+      return;
+    }
+
+    const minAtual = calcularDataMinima48h();
+    if (dataEntrega < minAtual) {
+      const minFormatada = minAtual.split('-').reverse().join('/');
+      alert(
+        `Nossas encomendas exigem no mínimo 48h de antecedência. Selecione uma data a partir de ${minFormatada}.`
+      );
+      setDataEntrega(minAtual);
       return;
     }
 
@@ -332,7 +375,7 @@ export default function CardapioNatalPetitMarie() {
       {/* Faixa Festiva Superior */}
       <div className="bg-gradient-to-r from-[#4A0D09] via-[#7A1812] to-[#4A0D09] text-[#F9E79F] text-center py-2.5 px-4 text-xs font-medium tracking-wider flex items-center justify-center gap-2 shadow-md border-b border-[#EBC351]/50">
         <Sparkles className="w-3.5 h-3.5 text-[#EBC351] shrink-0" />
-        <span>ENCOMENDAS DE NATAL PETIT MARIE • PRODUÇÃO ARTESANAL LIMITADA</span>
+        <span>ENCOMENDAS DE NATAL PETIT MARIE • ANTECEDÊNCIA MÍNIMA DE 48H</span>
         <Sparkles className="w-3.5 h-3.5 text-[#EBC351] shrink-0" />
       </div>
 
@@ -794,14 +837,19 @@ export default function CardapioNatalPetitMarie() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-[#7A1812] mb-1 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" /> Data Desejada
+                      <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" /> Data Desejada *
                     </label>
                     <input
                       type="date"
+                      required
+                      min={dataMinimaEntrega}
                       className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#7A1812] bg-[#FAF5F0]/50"
                       value={dataEntrega}
-                      onChange={(e) => setDataEntrega(e.target.value)}
+                      onChange={(e) => handleAlterarData(e.target.value)}
                     />
+                    <p className="text-[11px] text-[#7A1812]/80 mt-1">
+                      Prazo mínimo de 48h (a partir de <strong>{dataMinimaFormatada}</strong>).
+                    </p>
                   </div>
 
                   <div>
@@ -866,7 +914,7 @@ export default function CardapioNatalPetitMarie() {
         <p className="font-serif font-bold text-sm text-[#7A1812]">
           Petit Marie • Seu doce é uma ordem
         </p>
-        <p>Encomendas sujeitas à disponibilidade de agenda • Natal 2026</p>
+        <p>Encomendas com 48h de antecedência • Natal 2026</p>
       </footer>
 
       {/* Barra Fixa Inferior de Resumo do Pedido */}
