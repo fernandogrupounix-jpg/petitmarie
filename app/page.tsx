@@ -29,6 +29,7 @@ interface ProdutoItem {
   destaque?: boolean;
   tag?: string;
   imagem?: string;
+  sabores?: string[];
 }
 
 interface CategoriaCardapio {
@@ -61,10 +62,18 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
       {
         id: '3',
         nome: 'Chocotone trufado 900 g',
-        descricao: 'Super recheado com cobertura de chocolate nobre',
+        descricao: 'Super recheado com cobertura de chocolate nobre. Escolha seu sabor:',
         preco: 109.9,
         destaque: true,
         tag: 'Mais Pedido',
+        sabores: [
+          'Tradicional',
+          'Brigadeiro',
+          'Trufa',
+          'Doce de leite com nozes',
+          'Cacau',
+          'Ninho com Nutella',
+        ],
       },
     ],
   },
@@ -108,17 +117,43 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
     subtitulo: 'Peso aproximado de 3 kg • Serve muito bem a família',
     icone: '🎂',
     itens: [
-      { id: '14', nome: 'Folhado de Morango', descricao: 'Aprox. 3 kg', preco: 360.0 },
       {
-        id: '15',
-        nome: 'Bolo Matilda',
-        descricao: 'Aprox. 3 kg • Chocolatudo intenso',
+        id: '14',
+        nome: 'Espetáculo de Morango',
+        descricao:
+          'Massa chiffon baunilha, ganache de chocolate branco, massa folhada crocante, morangos frescos picados e chantilly. (Aprox. 3 kg)',
         preco: 360.0,
         destaque: true,
-        tag: 'Especial',
+        tag: 'Mais Pedido',
       },
-      { id: '16', nome: 'Matilda com Morango', descricao: 'Aprox. 3 kg', preco: 360.0 },
-      { id: '17', nome: 'Pudim com Doce de Leite', descricao: 'Aprox. 3 kg', preco: 320.0 },
+      {
+        id: '15',
+        nome: 'Tentação Cereja',
+        descricao:
+          'Massa chiffon de chocolate, ganache de chocolate meio amargo, nhá benta de ninho, cerejas marrasquino incorporadas e uma combinação irresistível de sabores. (Aprox. 3 kg)',
+        preco: 360.0,
+      },
+      {
+        id: '16',
+        nome: 'Matilda',
+        descricao:
+          'Massa de cacau 100%, com camadas generosas de ganache de chocolate, para os chocolovers. (Aprox. 3 kg)',
+        preco: 360.0,
+      },
+      {
+        id: '17',
+        nome: 'Matilda de Morango',
+        descricao:
+          'Massa de cacau 100%, com camadas generosas de ganache de chocolate e morangos frescos, combinando o sabor marcante do chocolate com a delicadeza da fruta. (Aprox. 3 kg)',
+        preco: 360.0,
+      },
+      {
+        id: '18',
+        nome: 'Bolo Pudim com Doce de Leite',
+        descricao:
+          'Massa chiffon baunilha, pudim cremoso e uma generosa camada de doce de leite, e chantilly, criando uma experiência única, indulgente e absolutamente deliciosa. (Aprox. 3 kg)',
+        preco: 320.0,
+      },
     ],
   },
   {
@@ -127,9 +162,9 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
     subtitulo: 'Opções delicadas para presentear pessoas queridas',
     icone: '🎁',
     itens: [
-      { id: '18', nome: 'Brownie Artesanal', preco: 18.0 },
-      { id: '19', nome: 'Pão de Mel Recheado', preco: 14.5 },
-      { id: '20', nome: 'Cone Trufado', preco: 18.0 },
+      { id: '19', nome: 'Brownie Artesanal', preco: 18.0 },
+      { id: '20', nome: 'Pão de Mel Recheado', preco: 14.5 },
+      { id: '21', nome: 'Cone Trufado', preco: 18.0 },
     ],
   },
   {
@@ -138,9 +173,29 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
     subtitulo: 'Praticidade e sabor artesanal para sua mesa',
     icone: '🍽️',
     itens: [
-      { id: '21', nome: 'Empadão Frango com Catupiry', preco: 95.8, destaque: true, tag: 'Ceia' },
-      { id: '22', nome: 'Empadão de Palmito', preco: 86.0 },
-      { id: '23', nome: 'Salpicão Especial (1 kg)', preco: 109.9 },
+      {
+        id: '22',
+        nome: 'Salpicão Premium Petit Marie (1 kg)',
+        descricao:
+          'Combinação de frango desfiado, ingredientes frescos e selecionados, cenoura, milho, ervilha e uva passa, envolvida em um creme especial, delicadamente temperado. Finalizado com batata palha.',
+        preco: 109.9,
+        destaque: true,
+        tag: 'Mais Pedido',
+      },
+      {
+        id: '23',
+        nome: 'Empadão de Frango com Catupiry Original',
+        descricao:
+          'Massa amanteigada que derrete na boca, recheada com frango desfiado, cuidadosamente temperado com Catupiry® Original.',
+        preco: 95.8,
+      },
+      {
+        id: '24',
+        nome: 'Empadão de Palmito',
+        descricao:
+          'Massa amanteigada com recheio cremoso de palmito selecionado, delicadamente temperado e preparado para realçar todo o sabor e a suavidade desse clássico.',
+        preco: 86.0,
+      },
     ],
   },
 ];
@@ -148,12 +203,16 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
 interface CartMap {
   [key: string]: {
     produto: ProdutoItem;
+    sabor?: string;
     quantidade: number;
   };
 }
 
 export default function CardapioNatalPetitMarie() {
   const [carrinho, setCarrinho] = useState<CartMap>({});
+  const [saboresSelecionados, setSaboresSelecionados] = useState<{ [produtoId: string]: string }>({
+    '3': 'Tradicional',
+  });
   const [etapa, setEtapa] = useState<'cardapio' | 'dados'>('cardapio');
   const [categoriaAtiva, setCategoriaAtiva] = useState<string>('chocotones');
 
@@ -166,19 +225,31 @@ export default function CardapioNatalPetitMarie() {
   const [formaPagamento, setFormaPagamento] = useState<'Pix' | 'Cartão' | 'Dinheiro'>('Pix');
   const [observacoes, setObservacoes] = useState('');
 
-  const alterarQuantidade = (produto: ProdutoItem, delta: number) => {
+  const getSaborAtual = (produto: ProdutoItem) => {
+    if (!produto.sabores || produto.sabores.length === 0) return undefined;
+    return saboresSelecionados[produto.id] || produto.sabores[0];
+  };
+
+  const getCartKey = (produtoId: string, sabor?: string) => {
+    return sabor ? `${produtoId}__${sabor}` : produtoId;
+  };
+
+  const alterarQuantidade = (produto: ProdutoItem, delta: number, saborEspecifico?: string) => {
+    const sabor = saborEspecifico ?? getSaborAtual(produto);
+    const key = getCartKey(produto.id, sabor);
+
     setCarrinho((prev) => {
-      const atual = prev[produto.id]?.quantidade || 0;
+      const atual = prev[key]?.quantidade || 0;
       const novaQtd = atual + delta;
 
       if (novaQtd <= 0) {
         const copy = { ...prev };
-        delete copy[produto.id];
+        delete copy[key];
         return copy;
       }
       return {
         ...prev,
-        [produto.id]: { produto, quantidade: novaQtd },
+        [key]: { produto, sabor, quantidade: novaQtd },
       };
     });
   };
@@ -235,7 +306,8 @@ export default function CardapioNatalPetitMarie() {
     msg += `\n🎁 *ITENS DO PEDIDO:*\n`;
     cartList.forEach((item) => {
       const sub = item.produto.preco * item.quantidade;
-      msg += `• *${item.quantidade}x* ${item.produto.nome} — ${formatarMoeda(sub)}\n`;
+      const saborTxt = item.sabor ? ` (${item.sabor})` : '';
+      msg += `• *${item.quantidade}x* ${item.produto.nome}${saborTxt} — ${formatarMoeda(sub)}\n`;
     });
 
     if (observacoes.trim()) {
@@ -335,11 +407,14 @@ export default function CardapioNatalPetitMarie() {
 
               <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
                 {itensDestaque.map((item) => {
-                  const qtd = carrinho[item.id]?.quantidade || 0;
+                  const saborAtual = getSaborAtual(item);
+                  const key = getCartKey(item.id, saborAtual);
+                  const qtd = carrinho[key]?.quantidade || 0;
+
                   return (
                     <div
                       key={item.id}
-                      className="min-w-[200px] bg-white/10 backdrop-blur-xs border border-[#EBC351]/40 rounded-2xl p-3.5 flex flex-col justify-between shrink-0"
+                      className="min-w-[215px] bg-white/10 backdrop-blur-xs border border-[#EBC351]/40 rounded-2xl p-3.5 flex flex-col justify-between shrink-0"
                     >
                       <div>
                         <span className="inline-block bg-[#EBC351] text-[#4A120E] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full mb-1.5">
@@ -348,6 +423,11 @@ export default function CardapioNatalPetitMarie() {
                         <h3 className="font-bold text-sm text-white leading-snug">
                           {item.nome}
                         </h3>
+                        {saborAtual && (
+                          <p className="text-[11px] text-[#F9E79F]/90 mt-0.5">
+                            Sabor: <strong>{saborAtual}</strong>
+                          </p>
+                        )}
                         <p className="text-base font-extrabold text-[#F9E79F] mt-1">
                           {formatarMoeda(item.preco)}
                         </p>
@@ -358,7 +438,7 @@ export default function CardapioNatalPetitMarie() {
                           <div className="flex items-center gap-2 bg-white text-[#7A1812] rounded-lg px-2 py-1 w-full justify-between">
                             <button
                               type="button"
-                              onClick={() => alterarQuantidade(item, -1)}
+                              onClick={() => alterarQuantidade(item, -1, saborAtual)}
                               className="p-0.5 hover:bg-gray-100 rounded"
                             >
                               <Minus className="w-3.5 h-3.5" />
@@ -366,7 +446,7 @@ export default function CardapioNatalPetitMarie() {
                             <span className="text-xs font-extrabold">{qtd} no pedido</span>
                             <button
                               type="button"
-                              onClick={() => alterarQuantidade(item, 1)}
+                              onClick={() => alterarQuantidade(item, 1, saborAtual)}
                               className="p-0.5 hover:bg-gray-100 rounded"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -375,7 +455,7 @@ export default function CardapioNatalPetitMarie() {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => alterarQuantidade(item, 1)}
+                            onClick={() => alterarQuantidade(item, 1, saborAtual)}
                             className="w-full py-1.5 bg-[#EBC351] hover:bg-[#f3d16b] text-[#4A120E] font-extrabold text-xs rounded-lg flex items-center justify-center gap-1 transition-transform active:scale-95"
                           >
                             <Plus className="w-3.5 h-3.5" /> Adicionar
@@ -395,7 +475,7 @@ export default function CardapioNatalPetitMarie() {
                 id={cat.id}
                 className="scroll-mt-16 bg-white rounded-3xl shadow-sm border border-[#D4AF37]/40 overflow-hidden"
               >
-                {/* Cabeçalho da Categoria (Faixa Bordô de Separação) */}
+                {/* Cabeçalho da Categoria */}
                 <div className="bg-gradient-to-r from-[#7A1812] to-[#5C110D] px-5 py-3.5 border-b-2 border-[#EBC351] flex items-center justify-between">
                   <div>
                     <h2 className="text-lg sm:text-xl font-serif font-bold text-[#F9E79F] flex items-center gap-2">
@@ -411,89 +491,145 @@ export default function CardapioNatalPetitMarie() {
                   </span>
                 </div>
 
-                {/* Lista de Itens da Categoria com Divisórias Bem Marcadas */}
+                {/* Lista de Itens da Categoria */}
                 <div className="divide-y divide-[#EBC351]/35">
                   {cat.itens.map((prod) => {
-                    const qtd = carrinho[prod.id]?.quantidade || 0;
+                    const saborAtual = getSaborAtual(prod);
+                    const keyAtual = getCartKey(prod.id, saborAtual);
+                    const qtdSaborAtual = carrinho[keyAtual]?.quantidade || 0;
+
+                    // Soma total de todos os sabores deste produto já no carrinho
+                    const totalProdutoNoCarrinho = prod.sabores
+                      ? prod.sabores.reduce(
+                          (sum, sab) => sum + (carrinho[getCartKey(prod.id, sab)]?.quantidade || 0),
+                          0
+                        )
+                      : qtdSaborAtual;
+
                     return (
                       <div
                         key={prod.id}
-                        className={`p-4 sm:px-5 transition-colors flex items-center justify-between gap-3 ${
-                          qtd > 0 ? 'bg-[#FDF6EC]' : 'hover:bg-[#FAF5F0]/60'
+                        className={`p-4 sm:px-5 transition-colors flex flex-col gap-3 ${
+                          totalProdutoNoCarrinho > 0 ? 'bg-[#FDF6EC]' : 'hover:bg-[#FAF5F0]/60'
                         }`}
                       >
-                        {/* Lado Esquerdo: Informações do Produto */}
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          {prod.imagem ? (
-                            <img
-                              src={prod.imagem}
-                              alt={prod.nome}
-                              className="w-16 h-16 rounded-xl object-cover shrink-0 border border-[#EBC351]/50"
-                            />
-                          ) : (
-                            <div className="w-11 h-11 rounded-xl bg-[#FAF5F0] border border-[#EBC351]/50 flex items-center justify-center text-lg shrink-0 mt-0.5">
-                              {cat.icone}
-                            </div>
-                          )}
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <h3 className="font-bold text-sm sm:text-base text-[#4A120E]">
-                                {prod.nome}
-                              </h3>
-                              {prod.destaque && (
-                                <span className="bg-[#EBC351]/30 text-[#7A1812] border border-[#D4AF37]/50 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full">
-                                  {prod.tag || 'Favorito'}
-                                </span>
-                              )}
-                            </div>
-
-                            {prod.descricao && (
-                              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                                {prod.descricao}
-                              </p>
+                        <div className="flex items-start justify-between gap-3">
+                          {/* Lado Esquerdo: Informações do Produto */}
+                          <div className="flex items-start gap-3 flex-1 min-w-0">
+                            {prod.imagem ? (
+                              <img
+                                src={prod.imagem}
+                                alt={prod.nome}
+                                className="w-16 h-16 rounded-xl object-cover shrink-0 border border-[#EBC351]/50"
+                              />
+                            ) : (
+                              <div className="w-11 h-11 rounded-xl bg-[#FAF5F0] border border-[#EBC351]/50 flex items-center justify-center text-lg shrink-0 mt-0.5">
+                                {cat.icone}
+                              </div>
                             )}
 
-                            <p className="text-sm sm:text-base font-extrabold text-[#7A1812] mt-1">
-                              {formatarMoeda(prod.preco)}
-                            </p>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <h3 className="font-bold text-sm sm:text-base text-[#4A120E]">
+                                  {prod.nome}
+                                </h3>
+                                {prod.destaque && (
+                                  <span className="bg-[#EBC351]/30 text-[#7A1812] border border-[#D4AF37]/50 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full">
+                                    {prod.tag || 'Favorito'}
+                                  </span>
+                                )}
+                              </div>
+
+                              {prod.descricao && (
+                                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                                  {prod.descricao}
+                                </p>
+                              )}
+
+                              <p className="text-sm sm:text-base font-extrabold text-[#7A1812] mt-1.5">
+                                {formatarMoeda(prod.preco)}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Lado Direito: Botões de Quantidade */}
+                          <div className="shrink-0">
+                            {qtdSaborAtual > 0 ? (
+                              <div className="flex items-center space-x-1.5 bg-white p-1 rounded-xl border-2 border-[#7A1812] shadow-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => alterarQuantidade(prod, -1, saborAtual)}
+                                  aria-label="Remover um"
+                                  className="w-8 h-8 flex items-center justify-center bg-[#FAF5F0] text-[#7A1812] rounded-lg active:scale-95 hover:bg-gray-100"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="text-sm font-extrabold w-6 text-center text-[#7A1812]">
+                                  {qtdSaborAtual}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => alterarQuantidade(prod, 1, saborAtual)}
+                                  aria-label="Adicionar mais um"
+                                  className="w-8 h-8 flex items-center justify-center bg-[#7A1812] text-white rounded-lg active:scale-95 hover:bg-[#5C110D]"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => alterarQuantidade(prod, 1, saborAtual)}
+                                className="px-3.5 py-2 flex items-center gap-1 bg-[#FAF5F0] hover:bg-[#7A1812] text-[#7A1812] hover:text-[#F9E79F] border border-[#7A1812]/30 text-xs font-bold rounded-xl transition-colors active:scale-95"
+                              >
+                                <Plus className="w-3.5 h-3.5" /> Adicionar
+                              </button>
+                            )}
                           </div>
                         </div>
 
-                        {/* Lado Direito: Botões de Quantidade */}
-                        <div className="shrink-0">
-                          {qtd > 0 ? (
-                            <div className="flex items-center space-x-1.5 bg-white p-1 rounded-xl border-2 border-[#7A1812] shadow-xs">
-                              <button
-                                type="button"
-                                onClick={() => alterarQuantidade(prod, -1)}
-                                aria-label="Remover um"
-                                className="w-8 h-8 flex items-center justify-center bg-[#FAF5F0] text-[#7A1812] rounded-lg active:scale-95 hover:bg-gray-100"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="text-sm font-extrabold w-6 text-center text-[#7A1812]">
-                                {qtd}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => alterarQuantidade(prod, 1)}
-                                aria-label="Adicionar mais um"
-                                className="w-8 h-8 flex items-center justify-center bg-[#7A1812] text-white rounded-lg active:scale-95 hover:bg-[#5C110D]"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
+                        {/* Seletor de Sabores (quando o produto possui variações, ex: Chocotone Trufado) */}
+                        {prod.sabores && prod.sabores.length > 0 && (
+                          <div className="pl-0 sm:pl-14 pt-1">
+                            <div className="flex flex-wrap gap-1.5">
+                              {prod.sabores.map((sabor) => {
+                                const selecionado = saborAtual === sabor;
+                                const qtdEsseSabor =
+                                  carrinho[getCartKey(prod.id, sabor)]?.quantidade || 0;
+                                return (
+                                  <button
+                                    key={sabor}
+                                    type="button"
+                                    onClick={() =>
+                                      setSaboresSelecionados((prev) => ({
+                                        ...prev,
+                                        [prod.id]: sabor,
+                                      }))
+                                    }
+                                    className={`text-xs px-3 py-1.5 rounded-full font-semibold border transition-all flex items-center gap-1.5 ${
+                                      selecionado
+                                        ? 'bg-[#7A1812] text-[#F9E79F] border-[#7A1812] shadow-xs'
+                                        : 'bg-white text-[#5C110D] border-[#EBC351]/70 hover:bg-[#FAF5F0]'
+                                    }`}
+                                  >
+                                    <span>{sabor}</span>
+                                    {qtdEsseSabor > 0 && (
+                                      <span
+                                        className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${
+                                          selecionado
+                                            ? 'bg-[#EBC351] text-[#4A120E]'
+                                            : 'bg-[#7A1812] text-white'
+                                        }`}
+                                      >
+                                        {qtdEsseSabor}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
                             </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => alterarQuantidade(prod, 1)}
-                              className="px-3.5 py-2 flex items-center gap-1 bg-[#FAF5F0] hover:bg-[#7A1812] text-[#7A1812] hover:text-[#F9E79F] border border-[#7A1812]/30 text-xs font-bold rounded-xl transition-colors active:scale-95"
-                            >
-                              <Plus className="w-3.5 h-3.5" /> Adicionar
-                            </button>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -535,19 +671,31 @@ export default function CardapioNatalPetitMarie() {
 
               <div className="p-5">
                 <ul className="divide-y divide-gray-100 text-sm">
-                  {cartList.map((item) => (
-                    <li key={item.produto.id} className="py-2.5 flex justify-between items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-[#7A1812] text-[#F9E79F] text-xs font-bold px-2 py-0.5 rounded-md">
-                          {item.quantidade}x
+                  {cartList.map((item) => {
+                    const key = getCartKey(item.produto.id, item.sabor);
+                    return (
+                      <li key={key} className="py-2.5 flex justify-between items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-[#7A1812] text-[#F9E79F] text-xs font-bold px-2 py-0.5 rounded-md shrink-0">
+                            {item.quantidade}x
+                          </span>
+                          <div>
+                            <span className="text-[#4A120E] font-medium block">
+                              {item.produto.nome}
+                            </span>
+                            {item.sabor && (
+                              <span className="text-xs text-[#7A1812] font-semibold">
+                                Sabor: {item.sabor}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <span className="font-bold text-[#4A120E] shrink-0">
+                          {formatarMoeda(item.produto.preco * item.quantidade)}
                         </span>
-                        <span className="text-[#4A120E] font-medium">{item.produto.nome}</span>
-                      </div>
-                      <span className="font-bold text-[#4A120E] shrink-0">
-                        {formatarMoeda(item.produto.preco * item.quantidade)}
-                      </span>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <div className="mt-3 pt-3 border-t-2 border-dashed border-[#EBC351] flex justify-between items-center">
                   <span className="font-bold text-sm text-[#7A1812]">Total Estimado</span>
