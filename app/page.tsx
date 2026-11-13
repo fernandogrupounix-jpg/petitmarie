@@ -67,11 +67,10 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
         destaque: true,
         tag: 'Mais Pedido',
         sabores: [
-          'Tradicional',
           'Brigadeiro',
-          'Trufa',
+          'Trufado',
           'Doce de leite com nozes',
-          'Cacau',
+          'Coco',
           'Ninho com Nutella',
         ],
       },
@@ -211,7 +210,7 @@ interface CartMap {
 export default function CardapioNatalPetitMarie() {
   const [carrinho, setCarrinho] = useState<CartMap>({});
   const [saboresSelecionados, setSaboresSelecionados] = useState<{ [produtoId: string]: string }>({
-    '3': 'Tradicional',
+    '3': 'Brigadeiro',
   });
   const [etapa, setEtapa] = useState<'cardapio' | 'dados'>('cardapio');
   const [categoriaAtiva, setCategoriaAtiva] = useState<string>('chocotones');
