@@ -10,7 +10,6 @@ import {
   Sparkles,
   Gift,
   Calendar,
-  MapPin,
   ChevronLeft,
   CreditCard,
   Star,
@@ -232,12 +231,10 @@ export default function CardapioNatalPetitMarie() {
     [dataMinimaEntrega]
   );
 
-  // Dados do Cliente
+  // Dados do Cliente (somente retirada no local)
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [modalidade, setModalidade] = useState<'retirada' | 'entrega'>('retirada');
-  const [endereco, setEndereco] = useState('');
-  const [dataEntrega, setDataEntrega] = useState(() => calcularDataMinima48h());
+  const [dataRetirada, setDataRetirada] = useState(() => calcularDataMinima48h());
   const [formaPagamento, setFormaPagamento] = useState<'Pix' | 'Cartão' | 'Dinheiro'>('Pix');
   const [observacoes, setObservacoes] = useState('');
 
@@ -279,12 +276,12 @@ export default function CardapioNatalPetitMarie() {
   const handleAlterarData = (novaData: string) => {
     if (novaData && novaData < dataMinimaEntrega) {
       alert(
-        `Nossas encomendas exigem no mínimo 48h de antecedência. A primeira data disponível é ${dataMinimaFormatada}.`
+        `Nossas encomendas exigem no mínimo 48h de antecedência. A primeira data disponível para retirada é ${dataMinimaFormatada}.`
       );
-      setDataEntrega(dataMinimaEntrega);
+      setDataRetirada(dataMinimaEntrega);
       return;
     }
-    setDataEntrega(novaData);
+    setDataRetirada(novaData);
   };
 
   const cartList = Object.values(carrinho);
@@ -311,23 +308,18 @@ export default function CardapioNatalPetitMarie() {
       return;
     }
 
-    if (modalidade === 'entrega' && !endereco.trim()) {
-      alert('Por favor, informe o endereço para entrega.');
-      return;
-    }
-
-    if (!dataEntrega) {
-      alert('Por favor, selecione a data desejada para retirada ou entrega.');
+    if (!dataRetirada) {
+      alert('Por favor, selecione a data desejada para retirada.');
       return;
     }
 
     const minAtual = calcularDataMinima48h();
-    if (dataEntrega < minAtual) {
+    if (dataRetirada < minAtual) {
       const minFormatada = minAtual.split('-').reverse().join('/');
       alert(
         `Nossas encomendas exigem no mínimo 48h de antecedência. Selecione uma data a partir de ${minFormatada}.`
       );
-      setDataEntrega(minAtual);
+      setDataRetirada(minAtual);
       return;
     }
 
@@ -335,14 +327,8 @@ export default function CardapioNatalPetitMarie() {
     msg += `────────────────────\n\n`;
     msg += `👤 *Cliente:* ${nome}\n`;
     msg += `📱 *WhatsApp:* ${telefone}\n`;
-    msg += `📦 *Recebimento:* ${modalidade === 'entrega' ? 'Entrega 🛵' : 'Retirada no local 🛍️'}\n`;
-
-    if (modalidade === 'entrega' && endereco) {
-      msg += `📍 *Endereço:* ${endereco}\n`;
-    }
-    if (dataEntrega) {
-      msg += `📅 *Data desejada:* ${dataEntrega.split('-').reverse().join('/')}\n`;
-    }
+    msg += `🛍️ *Modalidade:* Somente retirada no local\n`;
+    msg += `📅 *Data de retirada:* ${dataRetirada.split('-').reverse().join('/')}\n`;
     msg += `💳 *Pagamento:* ${formaPagamento}\n`;
 
     msg += `\n🎁 *ITENS DO PEDIDO:*\n`;
@@ -359,7 +345,7 @@ export default function CardapioNatalPetitMarie() {
     msg += `\n────────────────────\n`;
     msg += `💰 *VALOR TOTAL: ${formatarMoeda(valorTotal)}*\n`;
     msg += `────────────────────\n`;
-    msg += `_Aguardo confirmação da disponibilidade e dados para sinal!_ ✨`;
+    msg += `_Aguardo confirmação da disponibilidade, endereço de retirada e dados para sinal!_ ✨`;
 
     const url = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(msg)}`;
     window.location.href = url;
@@ -375,7 +361,7 @@ export default function CardapioNatalPetitMarie() {
       {/* Faixa Festiva Superior */}
       <div className="bg-gradient-to-r from-[#4A0D09] via-[#7A1812] to-[#4A0D09] text-[#F9E79F] text-center py-2.5 px-4 text-xs font-medium tracking-wider flex items-center justify-center gap-2 shadow-md border-b border-[#EBC351]/50">
         <Sparkles className="w-3.5 h-3.5 text-[#EBC351] shrink-0" />
-        <span>ENCOMENDAS DE NATAL PETIT MARIE • ANTECEDÊNCIA MÍNIMA DE 48H</span>
+        <span>ENCOMENDAS DE NATAL PETIT MARIE • SOMENTE RETIRADA • 48H DE ANTECEDÊNCIA</span>
         <Sparkles className="w-3.5 h-3.5 text-[#EBC351] shrink-0" />
       </div>
 
@@ -401,7 +387,7 @@ export default function CardapioNatalPetitMarie() {
           </div>
 
           <p className="text-xs sm:text-sm text-[#5C110D]/80 mt-3 max-w-md leading-relaxed">
-            Escolha suas delícias por categoria abaixo e finalize seu pedido organizado direto no nosso WhatsApp.
+            Escolha suas delícias por categoria abaixo e finalize seu pedido organizado para retirada direto no nosso WhatsApp.
           </p>
         </div>
 
@@ -755,11 +741,19 @@ export default function CardapioNatalPetitMarie() {
             >
               <div className="bg-[#7A1812] px-5 py-3 border-b-2 border-[#EBC351]">
                 <h2 className="text-base font-serif font-bold text-[#F9E79F] flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#EBC351]" /> Seus Dados para Contato
+                  <CheckCircle2 className="w-4 h-4 text-[#EBC351]" /> Seus Dados para Retirada
                 </h2>
               </div>
 
               <div className="p-5 space-y-4">
+                <div className="bg-[#FAF5F0] border border-[#EBC351]/70 rounded-2xl p-3 flex items-center gap-2.5 text-xs text-[#5C110D]">
+                  <span className="text-base shrink-0">🛍️</span>
+                  <span>
+                    <strong>Atenção:</strong> Não realizamos entregas. Todas as encomendas são{' '}
+                    <strong>exclusivamente para retirada no local</strong>.
+                  </span>
+                </div>
+
                 <div>
                   <label className="block text-xs font-bold text-[#7A1812] mb-1">
                     Nome Completo *
@@ -788,63 +782,17 @@ export default function CardapioNatalPetitMarie() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#7A1812] mb-1">
-                    Como deseja receber?
-                  </label>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setModalidade('retirada')}
-                      className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-1.5 ${
-                        modalidade === 'retirada'
-                          ? 'bg-[#7A1812] text-[#F9E79F] border-[#7A1812] shadow-xs'
-                          : 'bg-[#FAF5F0] text-[#7A1812] border-gray-200'
-                      }`}
-                    >
-                      🛍️ Retirada no local
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setModalidade('entrega')}
-                      className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-1.5 ${
-                        modalidade === 'entrega'
-                          ? 'bg-[#7A1812] text-[#F9E79F] border-[#7A1812] shadow-xs'
-                          : 'bg-[#FAF5F0] text-[#7A1812] border-gray-200'
-                      }`}
-                    >
-                      🛵 Entrega
-                    </button>
-                  </div>
-                </div>
-
-                {modalidade === 'entrega' && (
-                  <div>
-                    <label className="text-xs font-bold text-[#7A1812] mb-1 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" /> Endereço Completo para Entrega *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Rua, número, bairro e cidade"
-                      className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#7A1812] bg-[#FAF5F0]/50"
-                      value={endereco}
-                      onChange={(e) => setEndereco(e.target.value)}
-                    />
-                  </div>
-                )}
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-[#7A1812] mb-1 flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" /> Data Desejada *
+                      <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" /> Data de Retirada *
                     </label>
                     <input
                       type="date"
                       required
                       min={dataMinimaEntrega}
                       className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#7A1812] bg-[#FAF5F0]/50"
-                      value={dataEntrega}
+                      value={dataRetirada}
                       onChange={(e) => handleAlterarData(e.target.value)}
                     />
                     <p className="text-[11px] text-[#7A1812]/80 mt-1">
@@ -874,7 +822,7 @@ export default function CardapioNatalPetitMarie() {
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="Ex: Horário aproximado, embalagem para presente, recado no cartão..."
+                    placeholder="Ex: Horário aproximado de retirada, embalagem para presente, recado no cartão..."
                     className="w-full text-sm p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#7A1812] bg-[#FAF5F0]/50"
                     value={observacoes}
                     onChange={(e) => setObservacoes(e.target.value)}
@@ -914,7 +862,7 @@ export default function CardapioNatalPetitMarie() {
         <p className="font-serif font-bold text-sm text-[#7A1812]">
           Petit Marie • Seu doce é uma ordem
         </p>
-        <p>Encomendas com 48h de antecedência • Natal 2026</p>
+        <p>Somente retirada no local • Encomendas com 48h de antecedência • Natal 2026</p>
       </footer>
 
       {/* Barra Fixa Inferior de Resumo do Pedido */}
