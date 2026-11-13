@@ -15,6 +15,8 @@ import {
   Star,
   MessageCircle,
   Trash2,
+  X,
+  ZoomIn,
 } from 'lucide-react';
 
 // WhatsApp Oficial Petit Marie (55 + DDD 19 + 98937-8971)
@@ -51,12 +53,14 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
         nome: 'Chocotone 500 g',
         descricao: 'Massa artesanal fofinha com cobertura de chocolate nobre',
         preco: 59.9,
+        imagem: '/Chocotone.jpeg',
       },
       {
         id: '2',
         nome: 'Mini chocotone 120 g',
         descricao: 'Ideal para presentear • Cobertura de chocolate nobre',
         preco: 19.9,
+        imagem: '/Mini chocotone.jpeg',
       },
       {
         id: '3',
@@ -65,6 +69,7 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
         preco: 109.9,
         destaque: true,
         tag: 'Mais Pedido',
+        imagem: '/Chocotone trufado.jpeg',
         sabores: [
           'Brigadeiro',
           'Trufado',
@@ -93,7 +98,12 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
     itens: [
       { id: '6', nome: 'Torta Banoffee', preco: 159.9, destaque: true, tag: 'Sucesso' },
       { id: '7', nome: 'Torta de Limão', preco: 149.9 },
-      { id: '8', nome: 'Torta de Morango', preco: 179.9 },
+      {
+        id: '8',
+        nome: 'Torta de Morango',
+        preco: 179.9,
+        imagem: '/Torta de morango.jpeg',
+      },
       { id: '9', nome: 'Torta de Maracujá', preco: 165.0 },
     ],
   },
@@ -123,6 +133,7 @@ const CARDAPIO_NATAL: CategoriaCardapio[] = [
         preco: 360.0,
         destaque: true,
         tag: 'Mais Pedido',
+        imagem: '/Espetáculo de morango.jpeg',
       },
       {
         id: '15',
@@ -223,6 +234,7 @@ export default function CardapioNatalPetitMarie() {
   });
   const [etapa, setEtapa] = useState<'cardapio' | 'dados'>('cardapio');
   const [categoriaAtiva, setCategoriaAtiva] = useState<string>('chocotones');
+  const [fotoAmpliada, setFotoAmpliada] = useState<{ url: string; nome: string } | null>(null);
 
   // Regra de 48h de antecedência
   const dataMinimaEntrega = useMemo(() => calcularDataMinima48h(), []);
@@ -445,6 +457,23 @@ export default function CardapioNatalPetitMarie() {
                       className="min-w-[215px] bg-white/10 backdrop-blur-xs border border-[#EBC351]/40 rounded-2xl p-3.5 flex flex-col justify-between shrink-0"
                     >
                       <div>
+                        {item.imagem && (
+                          <button
+                            type="button"
+                            onClick={() => setFotoAmpliada({ url: item.imagem!, nome: item.nome })}
+                            className="relative w-full h-28 mb-2.5 rounded-xl overflow-hidden border border-[#EBC351]/50 block group"
+                          >
+                            <img
+                              src={item.imagem}
+                              alt={item.nome}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <span className="absolute bottom-1.5 right-1.5 bg-black/55 text-white p-1 rounded-full">
+                              <ZoomIn className="w-3 h-3" />
+                            </span>
+                          </button>
+                        )}
+
                         <span className="inline-block bg-[#EBC351] text-[#4A120E] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full mb-1.5">
                           {item.tag || 'Destaque'}
                         </span>
@@ -545,11 +574,21 @@ export default function CardapioNatalPetitMarie() {
                           {/* Lado Esquerdo: Informações do Produto */}
                           <div className="flex items-start gap-3 flex-1 min-w-0">
                             {prod.imagem ? (
-                              <img
-                                src={prod.imagem}
-                                alt={prod.nome}
-                                className="w-16 h-16 rounded-xl object-cover shrink-0 border border-[#EBC351]/50"
-                              />
+                              <button
+                                type="button"
+                                onClick={() => setFotoAmpliada({ url: prod.imagem!, nome: prod.nome })}
+                                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 border-[#EBC351]/60 shadow-xs group"
+                                title="Clique para ampliar a foto"
+                              >
+                                <img
+                                  src={prod.imagem}
+                                  alt={prod.nome}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                                <span className="absolute bottom-1 right-1 bg-black/50 text-white p-1 rounded-full">
+                                  <ZoomIn className="w-3 h-3" />
+                                </span>
+                              </button>
                             ) : (
                               <div className="w-11 h-11 rounded-xl bg-[#FAF5F0] border border-[#EBC351]/50 flex items-center justify-center text-lg shrink-0 mt-0.5">
                                 {cat.icone}
@@ -840,6 +879,35 @@ export default function CardapioNatalPetitMarie() {
           </div>
         )}
       </main>
+
+      {/* Modal de Ampliação da Foto do Produto */}
+      {fotoAmpliada && (
+        <div
+          onClick={() => setFotoAmpliada(null)}
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-xs"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl overflow-hidden max-w-md w-full border-2 border-[#EBC351] shadow-2xl"
+          >
+            <div className="bg-[#7A1812] px-4 py-3 flex items-center justify-between text-[#F9E79F]">
+              <span className="font-serif font-bold text-sm">{fotoAmpliada.nome}</span>
+              <button
+                type="button"
+                onClick={() => setFotoAmpliada(null)}
+                className="p-1 rounded-full hover:bg-white/15"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <img
+              src={fotoAmpliada.url}
+              alt={fotoAmpliada.nome}
+              className="w-full max-h-[75vh] object-contain bg-[#FAF5F0]"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Botão Flutuante de Dúvidas */}
       {totalItens === 0 && (
